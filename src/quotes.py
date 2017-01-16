@@ -43,6 +43,15 @@ class Quotes:
             myfile.write(text+'\n')
 
     def remove(self, num):
+        """
+        Remove a quote in the quotes file.
+
+        Args:
+            num(int): The quote id.
+
+        Raises:
+            ValueError: if quote text is empty or None.
+        """
         if num < 1 or num > self.num_of_quotes():
             raise ValueError('Quote number is out of range')
         
@@ -65,6 +74,9 @@ class Quotes:
 
         Args:
             num(int): The number of the quote to read.
+
+        Raises:
+            ValueError: if quote text is empty or None.
 
         Returns:
             str: The quote text. If None, no quote has been found.

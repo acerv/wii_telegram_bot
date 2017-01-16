@@ -1,6 +1,3 @@
-# Introduction
-A Telegram bot that can save quotes in your chat room.
-
 # Install & Run
 To install bot dependences:
     
@@ -8,6 +5,6 @@ To install bot dependences:
 
 In order to start the bot use the following command:
 
-    $ python src/wii.py <your token> <quotes txt file>
+    $ python src/wii.py -t <your token> -q <quotes txt file>
 
 Notice that the bot handles the quotes database as a `plain text file`.

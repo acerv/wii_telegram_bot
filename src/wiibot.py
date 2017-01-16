@@ -43,14 +43,14 @@ def print_error(message, error):
 
 @bot.message_handler(commands=['quote'])
 def command_quote(message):
-    arg = message.text.replace('/quote', '')
+    strsplit = message.text.split(' ')
     quotenum = 0
     text = ''
 
-    if not arg:
+    if len(strsplit) <= 1:
         text, quotenum = quotes.random_read()
-    elif arg.isdigit():
-        quotenum = int(arg)
+    elif strsplit[1].isdigit():
+        quotenum = int(strsplit[1])
         tot_quotes = quotes.num_of_quotes()
         if quotenum > 0 and quotenum <= tot_quotes:
             text = quotes.read(quotenum)
@@ -73,15 +73,14 @@ def command_quote_last(message):
 
 @bot.message_handler(commands=['quote_add'])
 def command_quote_add(message):
-    strsplit = message.text.split(' ')
+    arg = message.text.replace('/quote_add', '')
 
-    if len(strsplit) <= 1:
+    if not arg:
         print_error(message, 'Command failed: quote text is empty')
     else:
-        text = strsplit[1]
-        quotes.save(text)
+        quotes.save(arg)
         quotenum = quotes.num_of_quotes()
-        print_quote(message, quotenum, text)
+        print_quote(message, quotenum, arg)
 
 @bot.message_handler(commands=['quote_rm'])
 def command_quote_rm(message):

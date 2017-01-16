@@ -2,3 +2,4 @@ backup.db
 quotes.db
 buffer.db
 *.pyc
+update-nas.sh

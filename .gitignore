@@ -1,3 +1,4 @@
 backup.db
 quotes.db
+buffer.db
 *.pyc

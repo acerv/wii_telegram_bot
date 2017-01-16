@@ -12,6 +12,8 @@ class Quotes:
         """
         self.db = quotesfile
         self.bak = 'backup.db'
+        self.buffer = 'buffer.db'
+        shutil.copyfile(self.db, self.bak)
 
     def num_of_quotes(self):
         """
@@ -56,17 +58,17 @@ class Quotes:
             raise ValueError('Quote number is out of range')
         
         # cleanup backup file
-        open(self.bak, 'w').close()
+        open(self.buffer, 'w').close()
 
         # write backup file
         with open(self.db, 'r') as myfile:
-            with open(self.bak, 'r+') as bakfile:
+            with open(self.buffer, 'r+') as bufffile:
                 for i, line in enumerate(myfile):
                     if i != num - 1:
-                        bakfile.write(line)
+                        bufffile.write(line)
 
         # override current db
-        shutil.copyfile(self.bak, self.db)
+        shutil.copyfile(self.buffer, self.db)
 
     def read(self, num):
         """

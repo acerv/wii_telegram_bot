@@ -41,8 +41,11 @@ class Quotes:
         if not text:
             raise ValueError('Quote text can\'t be null or empty.')
 
+        # new line is our separator and it's reserved, so remove it
+        buff = text.replace('\n', ' ')
+
         with open(self.db, "a") as myfile:
-            myfile.write(text+'\n')
+            myfile.write(buff+'\n')
 
     def remove(self, num):
         """

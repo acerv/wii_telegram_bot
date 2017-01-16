@@ -1,18 +1,8 @@
 import sys
 import time
 import telebot
+import argparse
 from quotes import Quotes
-
-"""
-$ python2.7 wii.py <token> <quotes file>
-
-The Wii IRC bot rebuilt for Telegram.
-"""
-token = sys.argv[1] # get token from command-line
-qfile = sys.argv[2] # get quotes file from command-line
-
-bot = telebot.TeleBot(token)
-quotes = Quotes(qfile)
 
 commands = {  # command description used in the "help" command
     'help': 
@@ -29,6 +19,19 @@ commands = {  # command description used in the "help" command
         'Show the last added quote'
 }
 
+# program arguments
+parser = argparse.ArgumentParser(
+    description='The Wii Telegram bot.')
+parser.add_argument('-t', '--token', 
+    help='The bot token.', required=True)
+parser.add_argument('-q', '--quotes', 
+    help='The quotes database (use a plain text file).', required=True)
+args = parser.parse_args()
+
+# initialize bot
+bot = telebot.TeleBot(args.token)
+quotes = Quotes(args.quotes)
+    
 def print_quote(message, num, quote):
     bot.reply_to(message, 'Quote #'+str(num)+': '+quote)
 
@@ -105,4 +108,10 @@ def command_help(m):
 
     bot.send_message(cid, help_text)
 
+# start listening 
+print('Bot starts listening using:')
+print('- token:  '+args.token)
+print('- quotes: '+args.quotes)
+
 bot.polling()
+

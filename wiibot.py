@@ -25,7 +25,9 @@ commands = {
     'bycicle':
         'Byyyyyycicle Byyyyyycicle',
     'irc_quote':
-        'Show a quote from the old IRC channel'
+        'Show a quote from the old IRC channel',
+    'ftttt':
+        'FTTTT FTTTT'
 }
 
 # initialize bot
@@ -102,6 +104,15 @@ def command_irc_quote(m):
             print_message(m, text)
 
     logger.debug('command_irc_quote: quote sent')
+
+@bot.message_handler(commands=['ftttt'])
+def command_ftttt(m):
+    logger.debug('command_ftttt: sending picture')
+
+    with open('data/ftttt.jpeg', 'rb') as fftttt:
+        bot.send_photo(m.chat.id, fftttt)
+
+    logger.debug('command_ftttt: picture sent')
 
 # start listening
 logger.debug('Start bot polling...')

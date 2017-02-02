@@ -1,3 +1,4 @@
 *.pyc
 *.swp
 update-nas.sh
+token.txt

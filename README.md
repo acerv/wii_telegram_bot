@@ -5,4 +5,4 @@ To install bot dependences:
 
 In order to start the bot use the following command:
 
-    $ python src/wii.py
+    $ python wiibot.py

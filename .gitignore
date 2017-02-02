@@ -1,5 +1,3 @@
-backup.db
-quotes.db
-buffer.db
 *.pyc
+*.swp
 update-nas.sh

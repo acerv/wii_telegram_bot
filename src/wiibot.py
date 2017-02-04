@@ -114,30 +114,33 @@ def show_sticker(message, name):
         print_message(message, "%s" % ex)
 
 def show_subreddit_gallery_img(m, gallery):
-    logger.debug('show_subreddit_gallery: fetching image from imgur')
+    logger.debug('show_subreddit_gallery_img: fetching image from imgur')
 
     try:
-        logger.debug('show_subreddit_gallery: getting imgur images urls..')
+        logger.debug('show_subreddit_gallery_img: getting imgur images urls..')
+
+        bot.send_chat_action(m.chat.id, 'upload_photo')
+
         client = ImgurClient(client_id, client_secret)
         items = client.subreddit_gallery(
             gallery, 
             sort='time', 
             window='week', 
             page=0)
-        item_num = random.randint(1, len(items))
-        item = items[item_num]
+
+        item = random.choice(items)
+
+        logger.debug('show_subreddit_gallery_img: '+str(item))
 
         url = ''
-
-        if item.animated:
-            # !!! HACK !!! 
-            url = item.gifv[:-1]
-        else:
+        if item.is_album or not item.animated:
             url = item.link
+        else:
+            url = item.mp4
 
         bot.send_message(m.chat.id, url)
 
-        logger.debug('show_subreddit_gallery: image sent')
+        logger.debug('show_subreddit_gallery_img: image sent')
     except Exception, ex:
         print_message(m, "%s" % ex)
         logger.exception(ex)

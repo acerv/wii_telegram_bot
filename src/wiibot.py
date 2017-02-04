@@ -62,7 +62,11 @@ commands = {
     'russia':
         'Why Russia is amazing',
     'startrek':
-        'Star Trek gifs'
+        'Star Trek gifs',
+    'catgifs':
+        'Internet love cats',
+    'doggifs':
+        'Internet love dogs'
 }
 
 #################
@@ -204,6 +208,14 @@ def command_russia(m):
 @bot.message_handler(commands=['startrek'])
 def command_startrek(m):
     show_subreddit_gallery_img(m, 'startrekgifs')
+
+@bot.message_handler(commands=['cats'])
+def command_startrek(m):
+    show_subreddit_gallery_img(m, 'catgifs')
+
+@bot.message_handler(commands=['dogs'])
+def command_startrek(m):
+    show_subreddit_gallery_img(m, 'doggifs')
 
 ###############
 # BOT POLLING #

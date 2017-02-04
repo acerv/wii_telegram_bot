@@ -1,3 +1,18 @@
+# Copyright (C) 2017 Andrea Cervesato
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 import sys
 import logging
 import random
@@ -5,18 +20,24 @@ import telebot
 import urlparse
 import urllib
 import os
+import confighelper
 from imgurpython import ImgurClient
-from helpers import get_config, get_input
 
-# setup logger
+################
+# LOGGER SETUP #
+################
 logger = logging.getLogger('wiibot')
 logger.setLevel(logging.DEBUG)
+
 myhandler = logging.StreamHandler()  # writes to stderr
 myformatter = logging.Formatter(fmt='%(levelname)s: %(message)s')
 myhandler.setFormatter(myformatter)
+
 logger.addHandler(myhandler)
 
-# command description used in the "help" command
+################
+# HELP STRINGS #
+################
 commands = {      
     'help': 
         'Show the available commands',
@@ -36,13 +57,20 @@ commands = {
         'Star Trek gifs'
 }
 
-# read configuration file
+#################
+# CONFIGURAITON #
+#################
 logger.debug('reading config.ini..')
 
-config = get_config()
+config = confighelper.get_config()
 config.read('config.ini')
 
-# initialize bot
+client_id = config.get('imgur', 'client_id')
+client_secret = config.get('imgur', 'client_secret')
+
+######################
+# BOT INITIALIZATION #
+######################
 logger.debug('initialize bot..')
 
 token = config.get('telegram', 'token')
@@ -57,28 +85,22 @@ def print_message(message, msg):
 def print_error(message, error):
     print_message(message, error)
 
-def show_sticker(name, cid):
+def show_sticker(message, name):
     logger.debug('show_sticker: showing '+name+' sticker')
 
     try:
-        sticker_path = 'data/'+name+'.webp'
+        sticker_path = '../data/'+name+'.webp'
         with open(sticker_path, 'rb') as stickers:
-            bot.send_sticker(cid, stickers)
+            bot.send_sticker(message.chat.id, stickers)
 
         logger.debug('show_sticker:'+name+' sticker shown')
     except Exception, ex:
-        print_message(m, "%s" % ex)
+        print_message(message, "%s" % ex)
 
-def show_subreddit_gallery(m, gallery):
+def show_subreddit_gallery_img(m, gallery):
     logger.debug('show_subreddit_gallery: fetching image from imgur')
 
-    picfile = 'data/'+gallery
-
     try:
-        logger.debug('show_subreddit_gallery: reading imgur credentials..')
-        client_id = config.get('imgur', 'client_id')
-        client_secret = config.get('imgur', 'client_secret')
-
         logger.debug('show_subreddit_gallery: getting imgur images urls..')
         client = ImgurClient(client_id, client_secret)
         items = client.subreddit_gallery(
@@ -89,12 +111,15 @@ def show_subreddit_gallery(m, gallery):
         item_num = random.randint(1, len(items))
         item = items[item_num]
 
+        url = ''
+
         if item.animated:
             # !!! HACK !!! 
-            gifvtogif = item.gifv[:-1]
-            bot.send_message(m.chat.id, gifvtogif)
+            url = item.gifv[:-1]
         else:
-            bot.send_message(m.chat.id, item.link)
+            url = item.link
+
+        bot.send_message(m.chat.id, url)
 
         logger.debug('show_subreddit_gallery: image sent')
     except Exception, ex:
@@ -122,22 +147,22 @@ def command_help(m):
 
 @bot.message_handler(commands=['lamerda'])
 def command_lamerda(m):
-    show_sticker('lamerda', m.chat.id)
+    show_sticker(m, 'lamerda')
      
 @bot.message_handler(commands=['fap'])
 def command_fap(m):
-    show_sticker('fap', m.chat.id)
+    show_sticker(m, 'fap')
 
 @bot.message_handler(commands=['bycicle'])
 def command_bycicle(m):
-    show_sticker('bycicle', m.chat.id)
+    show_sticker(m, 'bycicle')
 
 @bot.message_handler(commands=['irc_quote'])
 def command_irc_quote(m):
     logger.debug('command_irc_quote: reading the quotes file')
 
     try:
-        with open('data/quotes.txt', 'r') as fquotes:
+        with open('../data/quotes.txt', 'r') as fquotes:
             num_lines = sum(1 for line in fquotes)
             num_rands = random.randint(1, num_lines)
 
@@ -166,17 +191,18 @@ def command_ftttt(m):
 
 @bot.message_handler(commands=['russia'])
 def command_russia(m):
-    show_subreddit_gallery(m, 'ANormalDayInRussia')
+    show_subreddit_gallery_img(m, 'ANormalDayInRussia')
 
 @bot.message_handler(commands=['startrek'])
 def command_startrek(m):
-    show_subreddit_gallery(m, 'startrekgifs')
+    show_subreddit_gallery_img(m, 'startrekgifs')
 
-# start listening
+###############
+# BOT POLLING #
+###############
 logger.debug('start bot polling..')
 
 try:
     bot.polling()
 except Exception, ex:
-    print_message(m, "%s" % ex)
     logger.exception(ex)

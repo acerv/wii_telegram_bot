@@ -66,7 +66,11 @@ commands = {
     'cats':
         'Internet love cats',
     'dogs':
-        'Internet love dogs'
+        'Internet love dogs',
+    'nintendo':
+        'Niiiiiintendo! Wahoo!',
+    'mario':
+        'It\'s me, Mario!'
 }
 
 #################
@@ -210,12 +214,20 @@ def command_startrek(m):
     show_subreddit_gallery_img(m, 'startrekgifs')
 
 @bot.message_handler(commands=['cats'])
-def command_startrek(m):
+def command_cats(m):
     show_subreddit_gallery_img(m, 'catgifs')
 
 @bot.message_handler(commands=['dogs'])
-def command_startrek(m):
+def command_dogs(m):
     show_subreddit_gallery_img(m, 'doggifs')
+
+@bot.message_handler(commands=['nintendo'])
+def command_nintendo(m):
+    show_subreddit_gallery_img(m, 'nintendo')
+
+@bot.message_handler(commands=['mario'])
+def command_mario(m):
+    show_subreddit_gallery_img(m, 'mario')
 
 ###############
 # BOT POLLING #

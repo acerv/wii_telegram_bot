@@ -35,6 +35,14 @@ myhandler.setFormatter(myformatter)
 
 logger.addHandler(myhandler)
 
+#####################
+# WORKING DIRECTORY #
+#####################
+working_dir = os.path.dirname(os.path.abspath(__file__))
+logger.debug('setup working directory '+working_dir)
+
+os.chdir(working_dir)
+
 ################
 # HELP STRINGS #
 ################
@@ -89,7 +97,7 @@ def show_sticker(message, name):
     logger.debug('show_sticker: showing '+name+' sticker')
 
     try:
-        sticker_path = '../data/'+name+'.webp'
+        sticker_path = 'data/'+name+'.webp'
         with open(sticker_path, 'rb') as stickers:
             bot.send_sticker(message.chat.id, stickers)
 
@@ -162,7 +170,7 @@ def command_irc_quote(m):
     logger.debug('command_irc_quote: reading the quotes file')
 
     try:
-        with open('../data/quotes.txt', 'r') as fquotes:
+        with open('data/quotes.txt', 'r') as fquotes:
             num_lines = sum(1 for line in fquotes)
             num_rands = random.randint(1, num_lines)
 

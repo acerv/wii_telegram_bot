@@ -63,9 +63,9 @@ commands = {
         'Why Russia is amazing',
     'startrek':
         'Star Trek gifs',
-    'catgifs':
+    'cats':
         'Internet love cats',
-    'doggifs':
+    'dogs':
         'Internet love dogs'
 }
 

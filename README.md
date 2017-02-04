@@ -17,5 +17,5 @@ containing the bot's configuration, like following:
 # Run
 In order to start the bot use the following command:
 
-    $ cd ./src && python wiibot.py
+    $ python src/wiibot.py
 

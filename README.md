@@ -1,4 +1,5 @@
 # Install
+[![Build Status](https://travis-ci.org/acerv/wii_telegram_bot.svg?branch=master)](https://travis-ci.org/acerv/wii_telegram_bot)
 To install bot dependences:
     
     $ make install

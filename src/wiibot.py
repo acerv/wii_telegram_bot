@@ -70,7 +70,9 @@ commands = {
     'nintendo':
         'Niiiiiintendo! Wahoo!',
     'mario':
-        'It\'s me, Mario!'
+        'It\'s me, Mario!',
+    'doge':
+        'Wow such a command!'
 }
 
 #################
@@ -231,6 +233,10 @@ def command_nintendo(m):
 @bot.message_handler(commands=['mario'])
 def command_mario(m):
     show_subreddit_gallery_img(m, 'mario')
+
+@bot.message_handler(commands=['doge'])
+def command_doge(m):
+    show_subreddit_gallery_img(m, 'doge')
 
 ###############
 # BOT POLLING #

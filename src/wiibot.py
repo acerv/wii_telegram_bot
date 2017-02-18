@@ -15,39 +15,36 @@
 
 import sys
 import logging
+import logging.config
 import random
 import telebot
+import yaml
 import urlparse
 import urllib
 import os
 import confighelper
 from imgurpython import ImgurClient
 
-################
-# LOGGER SETUP #
-################
-logger = logging.getLogger('wiibot')
-logger.setLevel(logging.DEBUG)
-
-myhandler = logging.StreamHandler()  # writes to stderr
-myformatter = logging.Formatter(fmt='%(levelname)s: %(message)s')
-myhandler.setFormatter(myformatter)
-
-logger.addHandler(myhandler)
-
 #####################
 # WORKING DIRECTORY #
 #####################
 working_dir = os.path.dirname(os.path.abspath(__file__))
-logger.debug('setup working directory '+working_dir)
-
 os.chdir(working_dir)
+
+################
+# LOGGER SETUP #
+################
+logger = logging.getLogger('wiibot')
+
+with open('logging.yml', 'r') as fhandle:
+    config = yaml.load(fhandle)
+    logging.config.dictConfig(config)
 
 ################
 # HELP STRINGS #
 ################
-commands = {      
-    'help': 
+commands = {
+    'help':
         'Show the available commands',
     'lamerda':
         'Everything is lamerda',
@@ -78,7 +75,7 @@ commands = {
 #################
 # CONFIGURAITON #
 #################
-logger.debug('reading config.ini..')
+logger.info("reading configuration..")
 
 config = confighelper.get_config()
 config.read('config.ini')
@@ -89,7 +86,7 @@ client_secret = config.get('imgur', 'client_secret')
 ######################
 # BOT INITIALIZATION #
 ######################
-logger.debug('initialize bot..')
+logger.info("creating bot..")
 
 token = config.get('telegram', 'token')
 bot = telebot.TeleBot(token)
@@ -97,42 +94,48 @@ bot = telebot.TeleBot(token)
 #############
 # UTILITIES #
 #############
-def print_message(message, msg):
-    bot.reply_to(message, msg)
-
-def print_error(message, error):
-    print_message(message, error)
-
-def show_sticker(message, name):
-    logger.debug('show_sticker: showing '+name+' sticker')
+def send_message(m, msg):
+    logger.info("sending message..")
+    logger.debug("msg=%s" % msg)
+    logger.debug("m.chat.id=%s" % m.chat.id)
+    logger.debug("m.chat.username=%s" % m.chat.username)
 
     try:
-        sticker_path = 'data/'+name+'.webp'
-        with open(sticker_path, 'rb') as stickers:
-            bot.send_sticker(message.chat.id, stickers)
-
-        logger.debug('show_sticker:'+name+' sticker shown')
+        bot.reply_to(m, msg)
     except Exception, ex:
-        print_message(message, "%s" % ex)
+        logger.exception(ex)
 
-def show_subreddit_gallery_img(m, gallery):
-    logger.debug('show_subreddit_gallery_img: fetching image from imgur')
+def send_error(m, error):
+    send_message(m, error)
+
+def send_sticker(m, stickerpath):
+    logger.info("showing '%s' sticker.." % stickerpath)
+    logger.debug("m.chat.id=%s" % m.chat.id)
+    logger.debug("m.chat.username=%s" % m.chat.username)
 
     try:
-        logger.debug('show_subreddit_gallery_img: getting imgur images urls..')
+        with open(stickerpath, 'rb') as sticker:
+            bot.send_sticker(m.chat.id, sticker)
+    except Exception, ex:
+        send_message(m, "Runtime error")
+        logger.exception(ex)
 
+def send_subreddit_gallery_img(m, gallery):
+    logger.info("showing image from subreddit gallery '%s'" % gallery)
+    logger.debug("m.chat.id=%s" % m.chat.id)
+    logger.debug("m.chat.username=%s" % m.chat.username)
+
+    try:
         bot.send_chat_action(m.chat.id, 'upload_photo')
 
         client = ImgurClient(client_id, client_secret)
         items = client.subreddit_gallery(
-            gallery, 
-            sort='time', 
-            window='week', 
+            gallery,
+            sort='time',
+            window='week',
             page=0)
 
         item = random.choice(items)
-
-        logger.debug('show_subreddit_gallery_img: '+str(item))
 
         url = ''
         if item.is_album or not item.animated:
@@ -140,11 +143,11 @@ def show_subreddit_gallery_img(m, gallery):
         else:
             url = item.mp4
 
-        bot.send_message(m.chat.id, url)
+        logger.debug("image url='%s'" % str(url))
 
-        logger.debug('show_subreddit_gallery_img: image sent')
+        bot.send_message(m.chat.id, url)
     except Exception, ex:
-        print_message(m, "%s" % ex)
+        send_message(m, "Runtime error")
         logger.exception(ex)
 
 ####################
@@ -152,42 +155,45 @@ def show_subreddit_gallery_img(m, gallery):
 ####################
 @bot.message_handler(commands=['help'])
 def command_help(m):
-    logger.debug('command_help: printing help message')
-    
+    logger.info("printing help message in chat..")
+    logger.debug("m.chat.id=%s" % m.chat.id)
+    logger.debug("m.chat.username=%s" % m.chat.username)
+
     try:
         help_text = "The following commands are available: \n"
         for key in commands:
             help_text += "/" + key + ": "
             help_text += commands[key] + "\n"
 
-        print_message(m, help_text)
-
-        logger.debug('command_help: help message printed')
+        send_message(m, help_text)
     except Exception, ex:
-        print_message(m, "%s" % ex)
+        send_message(m, "Runtime error")
+        logger.exception(ex)
 
 @bot.message_handler(commands=['lamerda'])
 def command_lamerda(m):
-    show_sticker(m, 'lamerda')
-     
+    send_sticker(m, 'data/lamerda.webp')
+
 @bot.message_handler(commands=['fap'])
 def command_fap(m):
-    show_sticker(m, 'fap')
+    send_sticker(m, 'data/fap.webp')
 
 @bot.message_handler(commands=['bycicle'])
 def command_bycicle(m):
-    show_sticker(m, 'bycicle')
+    send_sticker(m, 'data/bycicle.webp')
 
 @bot.message_handler(commands=['irc_quote'])
 def command_irc_quote(m):
-    logger.debug('command_irc_quote: reading the quotes file')
+    logger.info("sending IRC quote..")
+    logger.debug("m.chat.id=%s" % m.chat.id)
+    logger.debug("m.chat.username=%s" % m.chat.username)
 
     try:
         with open('data/quotes.txt', 'r') as fquotes:
             num_lines = sum(1 for line in fquotes)
             num_rands = random.randint(1, num_lines)
 
-            logger.debug('command_irc_quote: to send quote #'+str(num_rands))
+            logger.debug("read quote #%s" % str(num_rands))
 
             text = ''
 
@@ -198,50 +204,57 @@ def command_irc_quote(m):
                     break
 
             if not text:
-                print_error(m, 'Quote not found')
+                send_error(m, 'Quote not found')
             else:
-                print_message(m, text)
-
-        logger.debug('command_irc_quote: quote sent')
+                send_message(m, text)
     except Exception, ex:
-        print_message(m, "%s" % ex)
+        send_message(m, "Runtime error")
+        logger.exception(ex)
 
 @bot.message_handler(commands=['ftttt'])
 def command_ftttt(m):
-    bot.send_message(m.chat.id, '@valedix https://i.imgur.com/3STgUHv.jpg')
+    logger.info("sending ftttt url in chat..")
+    logger.debug("m.chat.id=%s" % m.chat.id)
+    logger.debug("m.chat.username=%s" % m.chat.username)
+
+    try:
+        bot.send_message(m.chat.id, '@valedix https://i.imgur.com/3STgUHv.jpg')
+    except Exception, ex:
+        send_message(m, "Runtime error")
+        logger.exception(ex)
 
 @bot.message_handler(commands=['russia'])
 def command_russia(m):
-    show_subreddit_gallery_img(m, 'ANormalDayInRussia')
+    send_subreddit_gallery_img(m, 'ANormalDayInRussia')
 
 @bot.message_handler(commands=['startrek'])
 def command_startrek(m):
-    show_subreddit_gallery_img(m, 'startrekgifs')
+    send_subreddit_gallery_img(m, 'startrekgifs')
 
 @bot.message_handler(commands=['cats'])
 def command_cats(m):
-    show_subreddit_gallery_img(m, 'catgifs')
+    send_subreddit_gallery_img(m, 'catgifs')
 
 @bot.message_handler(commands=['dogs'])
 def command_dogs(m):
-    show_subreddit_gallery_img(m, 'doggifs')
+    send_subreddit_gallery_img(m, 'doggifs')
 
 @bot.message_handler(commands=['nintendo'])
 def command_nintendo(m):
-    show_subreddit_gallery_img(m, 'nintendo')
+    send_subreddit_gallery_img(m, 'nintendo')
 
 @bot.message_handler(commands=['mario'])
 def command_mario(m):
-    show_subreddit_gallery_img(m, 'mario')
+    send_subreddit_gallery_img(m, 'mario')
 
 @bot.message_handler(commands=['doge'])
 def command_doge(m):
-    show_subreddit_gallery_img(m, 'doge')
+    send_subreddit_gallery_img(m, 'doge')
 
 ###############
 # BOT POLLING #
 ###############
-logger.debug('start bot polling..')
+logger.info('starting bot polling..')
 
 try:
     bot.polling()

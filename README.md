@@ -4,7 +4,7 @@
 The bot is written using python version 2.7.12. If your system does not
 provide it, you can use the `pyenv` package:
 
-    pip install --no-cached-dir --egg pyenv
+    pip install --no-cache-dir --egg pyenv
 
 Follow the pyenv instructions to setup your environment, then run:
 

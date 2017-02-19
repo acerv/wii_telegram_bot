@@ -1,3 +1,3 @@
 install:
-	pip install -r requirements.txt
+	pip install --no-cached-dir -r requirements.txt
 

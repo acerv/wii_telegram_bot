@@ -257,6 +257,6 @@ def command_doge(m):
 logger.info('starting bot polling..')
 
 try:
-    bot.polling()
+    bot.polling(none_stop=True)
 except Exception, ex:
     logger.exception(ex)

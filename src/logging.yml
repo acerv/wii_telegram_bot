@@ -35,9 +35,9 @@ handlers:
 loggers:
     wiibot:
         level: DEBUG
-        handlers: [console, file]
+        handlers: [file]
         propagate: no
 
 root:
     level: DEBUG
-    handlers: [console, file]
+    handlers: [file]

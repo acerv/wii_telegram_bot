@@ -23,6 +23,7 @@ import urlparse
 import urllib
 import os
 import confighelper
+import time
 from imgurpython import ImgurClient
 
 #####################
@@ -256,7 +257,9 @@ def command_doge(m):
 ###############
 logger.info('starting bot polling..')
 
-try:
-    bot.polling(none_stop=True)
-except Exception, ex:
-    logger.exception(ex)
+while True:
+    try:
+        bot.polling(none_stop=True)
+    except Exception, ex:
+        logger.exception(ex)
+        time.sleep(15)

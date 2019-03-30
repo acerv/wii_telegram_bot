@@ -19,12 +19,17 @@ import logging.config
 import random
 import telebot
 import yaml
-import urlparse
 import urllib
 import os
 import confighelper
 import time
 from imgurpython import ImgurClient
+
+try:
+    import urlparse
+except ImportError:
+    # python 3
+    import urllib.parse as urlparse
 
 #####################
 # WORKING DIRECTORY #
@@ -103,7 +108,7 @@ def send_message(m, msg):
 
     try:
         bot.reply_to(m, msg)
-    except Exception, ex:
+    except Exception as ex:
         logger.exception(ex)
 
 def send_error(m, error):
@@ -117,7 +122,7 @@ def send_sticker(m, stickerpath):
     try:
         with open(stickerpath, 'rb') as sticker:
             bot.send_sticker(m.chat.id, sticker)
-    except Exception, ex:
+    except Exception as ex:
         send_message(m, "Runtime error")
         logger.exception(ex)
 
@@ -147,7 +152,7 @@ def send_subreddit_gallery_img(m, gallery):
         logger.debug("image url='%s'" % str(url))
 
         bot.send_message(m.chat.id, url)
-    except Exception, ex:
+    except Exception as ex:
         send_message(m, "Runtime error")
         logger.exception(ex)
 
@@ -167,7 +172,7 @@ def command_help(m):
             help_text += commands[key] + "\n"
 
         send_message(m, help_text)
-    except Exception, ex:
+    except Exception as ex:
         send_message(m, "Runtime error")
         logger.exception(ex)
 
@@ -208,7 +213,7 @@ def command_irc_quote(m):
                 send_error(m, 'Quote not found')
             else:
                 send_message(m, text)
-    except Exception, ex:
+    except Exception as ex:
         send_message(m, "Runtime error")
         logger.exception(ex)
 
@@ -220,7 +225,7 @@ def command_ftttt(m):
 
     try:
         bot.send_message(m.chat.id, '@valedix https://i.imgur.com/3STgUHv.jpg')
-    except Exception, ex:
+    except Exception as ex:
         send_message(m, "Runtime error")
         logger.exception(ex)
 
@@ -260,6 +265,6 @@ logger.info('starting bot polling..')
 while True:
     try:
         bot.polling(none_stop=True)
-    except Exception, ex:
+    except Exception as ex:
         logger.exception(ex)
         time.sleep(15)
